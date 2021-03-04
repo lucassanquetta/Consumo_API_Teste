@@ -3,9 +3,12 @@
 require_once 'config/config.php';
 require_once 'modules/api.php';
 
-$pokemon = new API(API_KEY);
-$ditto = $pokemon->request('ditto');
-//  var_dump($ditto['types'][0]['type']['name']); exit;
+$pokedex = new API(API_KEY);
+$pokemon = $pokedex->request('charizard');
+$moves = $pokedex->request_moves($pokemon);
+// foreach ($pokemon['abilities'] as $ataques) {
+//     var_dump($ataques['ability']['name']);
+// } exit;
 ?>
 
 <!DOCTYPE html>
@@ -21,12 +24,52 @@ $ditto = $pokemon->request('ditto');
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <p>Tipo Pokemon Ditto</p>
-                <?php if ($pokemon->is_error() == false) : ?>
-                    <p>Tipo: <span class="badge badge-pill badge-primary"><?php echo(strtoupper($ditto['types'][0]['type']['name'])); ?></span></p>
+                <p>Pokemon: <?php echo(strtoupper($pokemon['name'])); ?></p>
+
+                <?php if ($pokedex->is_error() == false) : ?>
+                    <p>Nome: <span class="badge badge-pill badge-primary"><?php echo(strtoupper($pokemon['name'])); ?></span></p>
                 <?php else: ?>
-                    <p>Tipo <span class="badge badge-pill badge-danger">Servico indisponivel</span></p>
+                    <p>Nome: <span class="badge badge-pill badge-danger">Servico indisponivel</span></p>
                 <?php endif; ?>
+
+                <?php if ($pokedex->is_error() == false) : ?>
+                    <p>Tipo: <?php foreach ($pokemon['types'] as $ataques) { ?>
+                        <span class="badge badge-pill badge-primary">
+                        <?php echo(strtoupper($ataques['type']['name'])); ?>
+                        </span>
+                    <?php } ?></p>
+                <?php else: ?>
+                    <p>Tipo: <span class="badge badge-pill badge-danger">Servico indisponivel</span></p>
+                <?php endif; ?>
+                
+                <?php if ($pokedex->is_error() == false) : ?>
+                    <p>Ataques: <br>
+                        <table class="table">
+                            <thead class="thead-dark">
+                                <tr>
+                                <th scope="col">Nome</th>
+                                <th scope="col">Aprende no Level</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($moves as $ataques) { ?>
+                                <tr>
+                                    <td>
+                                        <?php echo(strtoupper($ataques['move']['name'])); ?>
+                                    </td>
+                                    <td>
+                                        <?php echo ($ataques['version_group_details'][0]['level_learned_at'] == 0 ?
+                                                        "Necessita de Machine" :
+                                                        $ataques['version_group_details'][0]['level_learned_at']); ?>
+                                    </td>
+                                </tr>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                    </p>
+                    <?php else: ?>
+                        <p>Ataques: <span class="badge badge-pill badge-danger">Servico indisponivel</span></p>
+                    <?php endif; ?>
             </div>
         </div>
     </div>

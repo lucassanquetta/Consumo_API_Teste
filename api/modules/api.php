@@ -18,7 +18,7 @@
 				}
 				// $uri = substr($uri, 0, -1);
 				$response = @file_get_contents($uri);
-				$this->error = false;
+                $this->error = false;
 				return json_decode($response, true);
 			}
 			else {
@@ -29,18 +29,48 @@
 
 		function is_error() {
 			return $this->error;
-		}
+        }
 
-		// function tipo_pokemon_ditto(){
-		// 	$data = $this->request('ditto'); var_dump($data['types']['type']); exit;
-		// 	if(!empty($data) && is_array($data['types']['type']['name'])){
-		// 		$this->error = false;
-		// 	}
-		// 	else{
-		// 		$this->error = true;
-		// 		return false;
-		// 	}
-		// }
+		function request_moves ($pokemon = '', $params = array()){
+            function my_sort($a,$b)
+            {
+                if ($a['version_group_details'][0]['level_learned_at'] == $b['version_group_details'][0]['level_learned_at']) return 0;
+                return ($a['version_group_details'][0]['level_learned_at'] < $b['version_group_details'][0]['level_learned_at']) ? -1 : 1;
+            }
+            // function my_sort2($a,$b)
+            // {
+            //     if ($b['version_group_details'][0]['level_learned_at'] > 0) {
+            //         if ($a['version_group_details'][0]['level_learned_at'] == $b['version_group_details'][0]['level_learned_at']) return 0;
+            //         return ($a['version_group_details'][0]['level_learned_at'] < $b['version_group_details'][0]['level_learned_at']) ? -1 : 1;
+            //     }
+            //     else {
+            //         return 1;
+            //     }
+            // }
+
+            $moves = $pokemon['moves'];
+            uasort($moves,"my_sort");
+            // uasort($moves,"my_sort2");
+            // var_dump($moves); exit;
+
+            $uri = $moves;
+			if(is_array($params)){
+				foreach($params as $key => $value){
+					if(empty($value)) continue;
+					$uri .= $key . '=' . urlencode($value) . '&';
+				} 
+				// $uri = substr($uri, 0, -1);
+                // $response = @file_get_contents($uri);
+                $response = $uri;
+				$this->error = false; //var_dump($response); exit;
+                // return json_decode($response, true);
+                return $response;
+			}
+			else {
+				$this->error = true;
+				return false;
+			}
+		}
 	}
 
 ?>
